@@ -1,0 +1,16 @@
+name: 'Check Binary Files'
+description: 'A GitHub Action to check for binary files in commits'
+inputs:
+  base-ref:
+    description: 'The base reference to compare with'
+    required: true
+  head-ref:
+    description: 'The head reference to compare with'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.base-ref }}
+    - ${{ inputs.head-ref }}
+
