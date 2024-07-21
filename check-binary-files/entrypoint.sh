@@ -5,10 +5,12 @@ binary_files=""
 
 # Get the list of commits in the push
 commits=$(git rev-list "$2" ^"$1")
+echo "Commit:" $commits
 
 # Check each commit for binary files
 for commit in $commits; do
   files=$(git diff-tree --no-commit-id --name-only --diff-filter=AM -r $commit)
+  echo "files: $files"
   
   for file in $files; do
     if file "$file" | grep -q 'ELF\|PE32\|Mach-O'; then
