@@ -11,8 +11,6 @@ runs:
   using: 'composite'
   steps:
     - name: Validate folder and subfolder names
-      run: ./validate-folder.sh
       shell: bash
-      with:
-        folder: ${{ inputs.folder }}
-        regex: ${{ inputs.regex }}
+      run: |
+        ./validate-folder.sh "${{ inputs.folder }}" "${{ inputs.regex }}"
