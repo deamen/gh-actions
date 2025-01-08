@@ -21,11 +21,15 @@ runs:
           exit 1
         fi
 
+        # Store inputs in variables
+        folder="${{ inputs.folder }}"
+        regex="${{ inputs.regex }}"
+
         # Check each subfolder name against the regex
-        for subfolder in "${{ inputs.folder }}"/*; do
+        for subfolder in "$folder"/*; do
           if [ -d "$subfolder" ]; then
             folder_name=$(basename "$subfolder")
-            if [[ ! "$folder_name" =~ ${${{ inputs.regex }}} ]]; then
+            if [[ ! "$folder_name" =~ $regex ]]; then
               echo "Folder name $folder_name does not match the regex pattern."
               exit 1
             fi
