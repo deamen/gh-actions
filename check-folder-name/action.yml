@@ -13,4 +13,23 @@ runs:
     - name: Validate folder and subfolder names
       shell: bash
       run: |
-        ./validate-folder.sh "${{ inputs.folder }}" "${{ inputs.regex }}"
+        #!/bin/bash
+
+        # Validate folder existence
+        if [ ! -d "${{ inputs.folder }}" ]; then
+          echo "Folder ${{ inputs.folder }} does not exist."
+          exit 1
+        fi
+
+        # Check each subfolder name against the regex
+        for subfolder in "${{ inputs.folder }}"/*; do
+          if [ -d "$subfolder" ]; then
+            folder_name=$(basename "$subfolder")
+            if [[ ! "$folder_name" =~ ${${{ inputs.regex }}} ]]; then
+              echo "Folder name $folder_name does not match the regex pattern."
+              exit 1
+            fi
+          fi
+        done
+
+        echo "All folder names match the regex pattern."
