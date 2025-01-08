@@ -1,0 +1,18 @@
+name: 'Check Folder Name'
+description: 'A GitHub Action to validate folder names against a regex pattern'
+inputs:
+  folder:
+    description: 'The directory containing subfolders to validate'
+    required: true
+  regex:
+    description: 'The regex pattern to match folder names against'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate folder and subfolder names
+      run: ./validate-folder.sh
+      shell: bash
+      with:
+        folder: ${{ inputs.folder }}
+        regex: ${{ inputs.regex }}
