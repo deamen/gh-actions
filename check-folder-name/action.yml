@@ -30,7 +30,7 @@ runs:
           if [ -d "$subfolder" ]; then
             folder_name=$(basename "$subfolder")
             if [[ ! "$folder_name" =~ $regex ]]; then
-              echo "Folder name $folder_name does not match the regex pattern."
+              echo "Folder name $folder_name does not match the regex pattern '${regex}'."
               exit 1
             fi
           fi
