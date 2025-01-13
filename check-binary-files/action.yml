@@ -72,7 +72,7 @@ runs:
         # Get the list of commits in the push
         echo "BASE: $BASE"
         echo "HEAD: $HEAD"
-        commits=$(git rev-list "$HEAD" ^"$BASE")
+        commits=$(git rev-list "$NEW_HEAD" ^"$NEW_BASE")
 #
 #        # Check each commit for binary files
 #        for commit in $commits; do
