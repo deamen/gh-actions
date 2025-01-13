@@ -62,8 +62,8 @@ runs:
             echo "BASE in workflow_dispatch: $BASE"
             echo "HEAD in workflow_dispatch: $HEAD"
           elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            BASE=${{github.event.pull_request.base.sha}}
-            HEAD=${{github.event.pull_request.head.sha}}
+            NEW_BASE=${{github.event.pull_request.base.sha}}
+            NEW_HEAD=${{github.event.pull_request.head.sha}}
             echo "BASE in pull_request: $BASE"
             echo "HEAD in pull_request: $HEAD"
           fi
@@ -72,7 +72,7 @@ runs:
         # Get the list of commits in the push
         echo "BASE: $BASE"
         echo "HEAD: $HEAD"
-        commits=$(git rev-list "$BASE" ^"$HEAD")
+        commits=$(git rev-list "$HEAD" ^"$BASE")
 #
 #        # Check each commit for binary files
 #        for commit in $commits; do
