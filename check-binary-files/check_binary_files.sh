@@ -48,7 +48,7 @@ else
 fi
 
 # Get the list of commits in the push
-commits=$(git rev-list "$BASE" ^"$HEAD")
+commits=$(git rev-list "$HEAD" ^"$BASE")
 
 # Check each commit for binary files
 binary_files=""
