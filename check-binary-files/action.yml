@@ -69,10 +69,10 @@ runs:
           fi
         fi
 
-#        # Get the list of commits in the push
-#        echo "BASE: $BASE"
-#        echo "HEAD: $HEAD"
-#        commits=$(git rev-list "$BASE" ^"$HEAD")
+        # Get the list of commits in the push
+        echo "BASE: $BASE"
+        echo "HEAD: $HEAD"
+        commits=$(git rev-list "$BASE" ^"$HEAD")
 #
 #        # Check each commit for binary files
 #        for commit in $commits; do
