@@ -22,6 +22,10 @@ runs:
         ## If BASE == HEAD, exit with error     ##
         ##########################################
         git status >/dev/null  # make sure we are in a git repository
+        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+          echo "Not in a Git repository."
+          exit 1
+        fi
         if [ -n "$BASE" ] || [ -n "$HEAD" ]; then
           if [ -n "$BASE" ]; then
             base_commit=$(git rev-parse "$BASE" 2>/dev/null) || true
@@ -66,6 +70,15 @@ runs:
             NEW_HEAD=${{github.event.pull_request.head.sha}}
             echo "BASE in pull_request: $BASE"
             echo "HEAD in pull_request: $HEAD"
+            if ! git cat-file -e "$NEW_BASE" 2>/dev/null; then
+              echo "Error: Commit $NEW_BASE does not exist."
+              exit 1
+            fi
+
+            if ! git cat-file -e "$NEW_HEAD" 2>/dev/null; then
+              echo "Error: Commit $NEW_HEAD does not exist."
+              exit 1
+            fi
           fi
         fi
 
