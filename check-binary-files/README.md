@@ -16,7 +16,25 @@ Example:
 
       steps:
       - name: Checkout code
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v3
+
+      - name: Set environment variables
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "depth=$(($(jq length <<< '${{ toJson(github.event.commits) }}') + 2))" >> $GITHUB_ENV
+            echo "branch=${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "depth=$((${{ github.event.pull_request.commits }}+2))" >> $GITHUB_ENV
+            echo "branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+          fi
+
+      - name: Checkout code with specified depth
+        uses: actions/checkout@v3
+        with:
+          ref: ${{env.branch}}
+          fetch-depth: ${{env.depth}}
 
       - name: Run check-binary-files action
         uses: deamen/gh-actions/check-binary-files@v1.0.0
@@ -35,3 +53,12 @@ Example:
           fi
 ```
 
+## Inputs
+
+### `base-ref`
+
+**Required** The base reference to compare with.
+
+### `head-ref`
+
+**Required** The head reference to compare with.
