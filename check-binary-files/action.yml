@@ -3,10 +3,10 @@ description: 'A GitHub Action to check for binary files in commits'
 inputs:
   base-ref:
     description: 'The base reference to compare with'
-    required: true
+    required: false
   head-ref:
     description: 'The head reference to compare with'
-    required: true
+    required: false
 runs:
   using: 'composite'
   steps:
