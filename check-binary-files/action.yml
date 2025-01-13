@@ -63,25 +63,25 @@ runs:
           fi
         fi
         
-        # Update BASE and HEAD for correct rev-list operation
-        if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
-          echo "::error::BASE or HEAD is not set. Cannot proceed."
-          exit 1
-        fi
+        # Forcefully override global BASE and HEAD environment variables
+        export BASE
+        export HEAD
         
         # Get the list of commits
         echo "BASE: $BASE"
         echo "HEAD: $HEAD"
         commits=$(git rev-list "$HEAD" ^"$BASE")
         
-        # Check result
+        # Check for empty commit list
         if [ -z "$commits" ]; then
           echo "No commits found between BASE and HEAD."
           exit 0
         fi
         
+        # Log commits
         echo "Commits between BASE and HEAD:"
         echo "$commits"
+
 
         
 #        # Check each commit for binary files
