@@ -12,15 +12,58 @@ runs:
   steps:
     - name: Run check-binary-files script
       shell: bash
+      env:
+        BASE: ${{ inputs.base-ref }}
+        HEAD: ${{ inputs.head-ref }}
       run: |
-        # Trust the GitHub Actions workspace directory
-        git config --global --add safe.directory /github/workspace
-
-        # Initialize an empty variable to store binary file names
-        binary_files=""
+        ##########################################
+        ## ADVANCED USAGE                       ##
+        ## Scan by BASE & HEAD user inputs      ##
+        ## If BASE == HEAD, exit with error     ##
+        ##########################################
+        git status >/dev/null  # make sure we are in a git repository
+        if [ -n "$BASE" ] || [ -n "$HEAD" ]; then
+          if [ -n "$BASE" ]; then
+            base_commit=$(git rev-parse "$BASE" 2>/dev/null) || true
+          else
+            base_commit=""
+          fi
+          if [ -n "$HEAD" ]; then
+            head_commit=$(git rev-parse "$HEAD" 2>/dev/null) || true
+          else
+            head_commit=""
+          fi
+          if [ "$base_commit" == "$head_commit" ] ; then
+            echo "::error::BASE and HEAD commits are the same."
+            exit 1
+          fi
+        ##########################################
+        ## Scan commits based on event type     ##
+        ##########################################
+        else
+          if [ "${{ github.event_name }}" == "push" ]; then
+            COMMIT_LENGTH=$(printenv COMMITS | jq length)
+            if [ $COMMIT_LENGTH == "0" ]; then
+              echo "No commits to scan"
+              exit 0
+            fi
+            HEAD=${{ github.event.after }}
+            if [ ${{ github.event.before }} == "0000000000000000000000000000000000000000" ]; then
+              BASE=$(git rev-parse $HEAD~$COMMIT_LENGTH)
+            else
+              BASE=${{ github.event.before }}
+            fi
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            BASE=""
+            HEAD=""
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE=${{github.event.pull_request.base.sha}}
+            HEAD=${{github.event.pull_request.head.sha}}
+          fi
+        fi
 
         # Get the list of commits in the push
-        commits=$(git rev-list "${{ inputs.head-ref }}" ^"${{ inputs.base-ref }}")
+        commits=$(git rev-list "$BASE" ^"$HEAD")
 
         # Check each commit for binary files
         for commit in $commits; do
