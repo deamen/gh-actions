@@ -10,6 +10,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Debug Environment Variables
+      shell: bash
+      run: |
+        echo "BASE: $BASE"
+        echo "HEAD: $HEAD"
+        echo "GitHub Event Name: ${{ github.event_name }}"
+        echo "Pull Request Base SHA: ${{ github.event.pull_request.base.sha }}"
+        echo "Pull Request Head SHA: ${{ github.event.pull_request.head.sha }}"
+
     - name: Run check-binary-files script
       shell: bash
       env:
@@ -26,15 +35,15 @@ runs:
           echo "Not in a Git repository."
           exit 1
         fi
-        
+
         # Log initial values of BASE and HEAD
         echo "Initial BASE: $BASE"
         echo "Initial HEAD: $HEAD"
-        
+
         if [ -n "$BASE" ] || [ -n "$HEAD" ]; then
           base_commit=$(git rev-parse "$BASE" 2>/dev/null) || true
           head_commit=$(git rev-parse "$HEAD" 2>/dev/null) || true
-        
+
           if [ "$base_commit" == "$head_commit" ]; then
             echo "::error::BASE and HEAD commits are the same."
             exit 1
@@ -45,39 +54,39 @@ runs:
             HEAD=${{ github.event.pull_request.head.sha }}
             echo "BASE in pull_request: $BASE"
             echo "HEAD in pull_request: $HEAD"
-        
+
             if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
               echo "::error::BASE or HEAD is empty in pull_request context."
               exit 1
             fi
-        
+
             if ! git cat-file -e "$BASE" 2>/dev/null; then
               echo "::error::Commit $BASE does not exist."
               exit 1
             fi
-        
+
             if ! git cat-file -e "$HEAD" 2>/dev/null; then
               echo "::error::Commit $HEAD does not exist."
               exit 1
             fi
           fi
         fi
-        
+
         # Forcefully override global BASE and HEAD environment variables
         export BASE
         export HEAD
-        
+
         # Get the list of commits
         echo "BASE: $BASE"
         echo "HEAD: $HEAD"
         commits=$(git rev-list "$HEAD" ^"$BASE")
-        
+
         # Check for empty commit list
         if [ -z "$commits" ]; then
           echo "No commits found between BASE and HEAD."
           exit 0
         fi
-        
+
         # Log commits
         echo "Commits between BASE and HEAD:"
         echo "$commits"
