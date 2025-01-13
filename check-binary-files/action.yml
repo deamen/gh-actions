@@ -26,67 +26,47 @@ runs:
           echo "Not in a Git repository."
           exit 1
         fi
+        
+        echo "Initial BASE: $BASE"
+        echo "Initial HEAD: $HEAD"
+        
         if [ -n "$BASE" ] || [ -n "$HEAD" ]; then
-          if [ -n "$BASE" ]; then
-            base_commit=$(git rev-parse "$BASE" 2>/dev/null) || true
-          else
-            base_commit=""
-          fi
-          if [ -n "$HEAD" ]; then
-            head_commit=$(git rev-parse "$HEAD" 2>/dev/null) || true
-          else
-            head_commit=""
-          fi
-          if [ "$base_commit" == "$head_commit" ] ; then
+          base_commit=$(git rev-parse "$BASE" 2>/dev/null) || true
+          head_commit=$(git rev-parse "$HEAD" 2>/dev/null) || true
+        
+          if [ "$base_commit" == "$head_commit" ]; then
             echo "::error::BASE and HEAD commits are the same."
             exit 1
           fi
-        ##########################################
-        ## Scan commits based on event type     ##
-        ##########################################
         else
-          if [ "${{ github.event_name }}" == "push" ]; then
-            COMMIT_LENGTH=$(printenv COMMITS | jq length)
-            if [ $COMMIT_LENGTH == "0" ]; then
-              echo "No commits to scan"
-              exit 0
-            fi
-            HEAD=${{ github.event.after }}
-            echo "HEAD in push: $HEAD"
-            if [ ${{ github.event.before }} == "0000000000000000000000000000000000000000" ]; then
-              BASE=$(git rev-parse $HEAD~$COMMIT_LENGTH)
-            echo "BASE in push1: $BASE"
-            else
-              BASE=${{ github.event.before }}
-              echo "BASE in push2: $BASE"
-            fi
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] || [ "${{ github.event_name }}" == "schedule" ]; then
-            BASE=""
-            HEAD=""
-            echo "BASE in workflow_dispatch: $BASE"
-            echo "HEAD in workflow_dispatch: $HEAD"
-          elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            NEW_BASE=${{github.event.pull_request.base.sha}}
-            NEW_HEAD=${{github.event.pull_request.head.sha}}
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+            HEAD=${{ github.event.pull_request.head.sha }}
             echo "BASE in pull_request: $BASE"
             echo "HEAD in pull_request: $HEAD"
-            if ! git cat-file -e "$NEW_BASE" 2>/dev/null; then
-              echo "Error: Commit $NEW_BASE does not exist."
+        
+            if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
+              echo "::error::BASE or HEAD is empty in pull_request context."
               exit 1
             fi
-
-            if ! git cat-file -e "$NEW_HEAD" 2>/dev/null; then
-              echo "Error: Commit $NEW_HEAD does not exist."
+        
+            if ! git cat-file -e "$BASE" 2>/dev/null; then
+              echo "::error::Commit $BASE does not exist."
+              exit 1
+            fi
+        
+            if ! git cat-file -e "$HEAD" 2>/dev/null; then
+              echo "::error::Commit $HEAD does not exist."
               exit 1
             fi
           fi
         fi
-
+        
         # Get the list of commits in the push
         echo "BASE: $BASE"
         echo "HEAD: $HEAD"
-        commits=$(git rev-list "$NEW_HEAD" ^"$NEW_BASE")
-#
+        commits=$(git rev-list "$HEAD" ^"$BASE")
+        
 #        # Check each commit for binary files
 #        for commit in $commits; do
 #          files=$(git diff-tree --no-commit-id --name-only --diff-filter=AM -r $commit)
