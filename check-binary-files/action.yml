@@ -27,6 +27,7 @@ runs:
           exit 1
         fi
         
+        # Log initial values of BASE and HEAD
         echo "Initial BASE: $BASE"
         echo "Initial HEAD: $HEAD"
         
@@ -39,7 +40,7 @@ runs:
             exit 1
           fi
         else
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
+          if [ "${GITHUB_EVENT_NAME}" == "pull_request" ]; then
             BASE=${{ github.event.pull_request.base.sha }}
             HEAD=${{ github.event.pull_request.head.sha }}
             echo "BASE in pull_request: $BASE"
@@ -62,10 +63,26 @@ runs:
           fi
         fi
         
-        # Get the list of commits in the push
+        # Update BASE and HEAD for correct rev-list operation
+        if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
+          echo "::error::BASE or HEAD is not set. Cannot proceed."
+          exit 1
+        fi
+        
+        # Get the list of commits
         echo "BASE: $BASE"
         echo "HEAD: $HEAD"
         commits=$(git rev-list "$HEAD" ^"$BASE")
+        
+        # Check result
+        if [ -z "$commits" ]; then
+          echo "No commits found between BASE and HEAD."
+          exit 0
+        fi
+        
+        echo "Commits between BASE and HEAD:"
+        echo "$commits"
+
         
 #        # Check each commit for binary files
 #        for commit in $commits; do
