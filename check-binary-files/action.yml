@@ -48,21 +48,30 @@ runs:
               exit 0
             fi
             HEAD=${{ github.event.after }}
+            echo "HEAD in push: $HEAD"
             if [ ${{ github.event.before }} == "0000000000000000000000000000000000000000" ]; then
               BASE=$(git rev-parse $HEAD~$COMMIT_LENGTH)
+            echo "BASE in push1: $BASE"
             else
               BASE=${{ github.event.before }}
+              echo "BASE in push2: $BASE"
             fi
           elif [ "${{ github.event_name }}" == "workflow_dispatch" ] || [ "${{ github.event_name }}" == "schedule" ]; then
             BASE=""
             HEAD=""
+            echo "BASE in workflow_dispatch: $BASE"
+            echo "HEAD in workflow_dispatch: $HEAD"
           elif [ "${{ github.event_name }}" == "pull_request" ]; then
             BASE=${{github.event.pull_request.base.sha}}
             HEAD=${{github.event.pull_request.head.sha}}
+            echo "BASE in pull_request: $BASE"
+            echo "HEAD in pull_request: $HEAD"
           fi
         fi
 
         # Get the list of commits in the push
+        echo "BASE: $BASE"
+        echo "HEAD: $HEAD"
         commits=$(git rev-list "$BASE" ^"$HEAD")
 
         # Check each commit for binary files
