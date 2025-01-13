@@ -10,111 +10,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Debug Environment Variables
-      shell: bash
-      run: |
-        echo "BASE: $BASE"
-        echo "HEAD: $HEAD"
-        echo "GitHub Event Name: ${{ github.event_name }}"
-        echo "Pull Request Base SHA: ${{ github.event.pull_request.base.sha }}"
-        echo "Pull Request Head SHA: ${{ github.event.pull_request.head.sha }}"
-
     - name: Run check-binary-files script
       shell: bash
       env:
         BASE: ${{ inputs.base-ref }}
         HEAD: ${{ inputs.head-ref }}
-      run: |
-        ##########################################
-        ## ADVANCED USAGE                       ##
-        ## Scan by BASE & HEAD user inputs      ##
-        ## If BASE == HEAD, exit with error     ##
-        ##########################################
-        git status >/dev/null  # make sure we are in a git repository
-        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-          echo "Not in a Git repository."
-          exit 1
-        fi
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        GITHUB_EVENT_AFTER: ${{ github.event.after }}
+        GITHUB_EVENT_PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      run: ${{ github.action_path }}/scripts/check_binary_files.sh
 
-        # Log initial values of BASE and HEAD
-        echo "Initial BASE: $BASE"
-        echo "Initial HEAD: $HEAD"
-
-        if [ -n "$BASE" ] || [ -n "$HEAD" ]; then
-          base_commit=$(git rev-parse "$BASE" 2>/dev/null) || true
-          head_commit=$(git rev-parse "$HEAD" 2>/dev/null) || true
-
-          if [ "$base_commit" == "$head_commit" ]; then
-            echo "::error::BASE and HEAD commits are the same."
-            exit 1
-          fi
-        else
-          if [ "${GITHUB_EVENT_NAME}" == "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-            HEAD=${{ github.event.pull_request.head.sha }}
-            echo "BASE in pull_request: $BASE"
-            echo "HEAD in pull_request: $HEAD"
-
-            if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
-              echo "::error::BASE or HEAD is empty in pull_request context."
-              exit 1
-            fi
-
-            if ! git cat-file -e "$BASE" 2>/dev/null; then
-              echo "::error::Commit $BASE does not exist."
-              exit 1
-            fi
-
-            if ! git cat-file -e "$HEAD" 2>/dev/null; then
-              echo "::error::Commit $HEAD does not exist."
-              exit 1
-            fi
-          fi
-        fi
-
-        # Forcefully override global BASE and HEAD environment variables
-        export BASE
-        export HEAD
-
-        # Get the list of commits
-        echo "BASE: $BASE"
-        echo "HEAD: $HEAD"
-        commits=$(git rev-list "$HEAD" ^"$BASE")
-
-        # Check for empty commit list
-        if [ -z "$commits" ]; then
-          echo "No commits found between BASE and HEAD."
-          exit 0
-        fi
-
-        # Log commits
-        echo "Commits between BASE and HEAD:"
-        echo "$commits"
-
-
-        
-#        # Check each commit for binary files
-#        for commit in $commits; do
-#          files=$(git diff-tree --no-commit-id --name-only --diff-filter=AM -r $commit)
-#          
-#          if [ -n "$files" ]; then
-#            for file in $files; do
-#              if file "$file" | grep -q 'ELF\|PE32\|Mach-O'; then
-#                binary_files="$binary_files$file (in commit $commit)\n"
-#              fi
-#            done
-#          else
-#            echo "No files detected in commit $commit"
-#            exit 1
-#          fi
-#        done
-#
-#        # Set the output variable if binary files were detected
-#        if [ -n "$binary_files" ]; then
-#          echo "Binary files detected:"
-#          echo -e "$binary_files"
-#          echo "::set-output name=binary_files::$binary_files"
-#          exit 1
-#        else
-#          echo "No binary files detected."
-#        fi
