@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xeuo pipefail
+set -euo pipefail
 
 ##########################################
 ## ADVANCED USAGE                       ##
@@ -71,7 +71,7 @@ done
 if [ -n "$binary_files" ]; then
   echo "Binary files detected:"
   echo -e "$binary_files"
-  echo "::set-output name=binary_files::$binary_files"
+  echo "binary_files=$binary_files" >> $GITHUB_OUTPUT
   exit 1
 else
   echo "No binary files detected."
