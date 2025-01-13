@@ -1,13 +1,8 @@
-#!/bin/sh -l
-
-# Trust the GitHub Actions workspace directory
-git config --global --add safe.directory /github/workspace
-
 # Initialize an empty variable to store binary file names
 binary_files=""
 
 # Get the list of commits in the push
-commits=$(git rev-list "$2" ^"$1")
+commits=$(git rev-list "${{ inputs.head-ref }}" ^"${{ inputs.base-ref }}")
 
 # Check each commit for binary files
 for commit in $commits; do
