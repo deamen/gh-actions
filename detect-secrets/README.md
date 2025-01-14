@@ -21,10 +21,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Run detect-secrets action
-      uses: ./detect-secrets
+      uses: deamen/gh-actions/detect-secrets@master # or sha of the commitzs
       with:
         baseline-file: '.secrets.baseline'
 ```
@@ -36,4 +36,4 @@ None
 ## Error Handling
 
 - If the .baseline file does not exist, the action exits with code 1 and outputs an error message.
-- If secrets are detected, the action exits with code 1 and outputs the detect-secrets message.
+- If secrets are detected, the action exits with code 1 and outputs the sorted detect-secrets message in format `> filename,hashed_secret,line_number`.

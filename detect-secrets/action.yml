@@ -12,6 +12,7 @@ runs:
       with:
         python-version: '3.12'
     - name: Install detect-secrets
+      shell: bash
       run: |
         python -m pip install detect-secrets
     - name: Run detect-secrets scan
