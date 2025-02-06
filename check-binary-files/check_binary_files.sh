@@ -63,7 +63,7 @@ for commit in $commits; do
     done
   else
     echo "No files detected in commit $commit"
-    exit 1
+    continue
   fi
 done
 
@@ -76,4 +76,3 @@ if [ -n "$binary_files" ]; then
 else
   echo "No binary files detected."
 fi
-
