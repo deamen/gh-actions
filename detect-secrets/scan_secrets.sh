@@ -47,4 +47,3 @@ else
   echo "No secrets detected."
   exit 0
 fi
-

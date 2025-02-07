@@ -21,4 +21,3 @@ runs:
         GITHUB_EVENT_PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       run: ${GITHUB_ACTION_PATH}/check_binary_files.sh
-

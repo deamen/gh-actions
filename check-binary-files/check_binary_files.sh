@@ -54,7 +54,7 @@ commits=$(git rev-list "$HEAD" ^"$BASE")
 binary_files=""
 for commit in $commits; do
   files=$(git diff-tree --no-commit-id --name-only --diff-filter=AM -r "$commit")
-  
+
   if [ -n "$files" ]; then
     for file in $files; do
       if file "$file" | grep -q 'ELF\|PE32\|Mach-O'; then
