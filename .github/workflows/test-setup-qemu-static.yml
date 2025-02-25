@@ -1,0 +1,16 @@
+name: Test Setup QEMU Static
+
+on: [push, pull_request]
+
+jobs:
+  test-setup-qemu-static:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run setup-qemu-static action
+      uses: ./setup-qemu-static
+      with:
+        targets: 'aarch64 arm'
