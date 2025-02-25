@@ -1,0 +1,20 @@
+name: 'setup-qemu-static'
+description: 'A GitHub Action to install qemu-static related packages and enable targets based on input variables'
+inputs:
+  targets:
+    description: 'A list of targets to enable'
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Install qemu-static packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+    - name: Enable targets
+      if: ${{ inputs.targets != '' }}
+      run: |
+        for target in ${{ inputs.targets }}; do
+          sudo update-binfmts --enable $target
+        done
