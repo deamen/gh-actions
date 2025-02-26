@@ -1,6 +1,16 @@
 name: Test Setup QEMU Static
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - setup-qemu-static/**
+  pull_request:
+    branches:
+      - master
+    paths:
+      - setup-qemu-static/**
 
 jobs:
   test-setup-qemu-static:
