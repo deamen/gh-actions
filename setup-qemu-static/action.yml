@@ -14,10 +14,11 @@ runs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
         sudo apt-get install -y binfmt-support
+        sudo apt-get install -y update-binfmts
     - name: Enable targets
       if: ${{ inputs.targets != '' }}
       shell: bash
       run: |
         for target in ${{ inputs.targets }}; do
-          sudo update-binfmts --enable $target
+          sudo update-binfmts --enable $target || sudo update-binfmts --importdir /var/lib/binfmts --import $target
         done
