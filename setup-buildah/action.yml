@@ -1,0 +1,12 @@
+name: 'setup-buildah'
+description: 'A GitHub Action to install buildah related packages based on the operating system'
+inputs:
+  os:
+    description: 'The operating system for which to install buildah'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install buildah packages
+      shell: bash
+      run: ${GITHUB_ACTION_PATH}/install-buildah.sh ${{ inputs.os }}
