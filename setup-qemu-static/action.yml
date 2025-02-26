@@ -19,5 +19,5 @@ runs:
       shell: bash
       run: |
         for target in ${{ inputs.targets }}; do
-          sudo update-binfmts --enable $target || sudo update-binfmts --importdir /var/lib/binfmts --import $target
+          sudo update-binfmts --enable qemu-${target} || sudo update-binfmts --importdir /var/lib/binfmts --import $target
         done
