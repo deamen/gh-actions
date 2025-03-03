@@ -11,10 +11,10 @@ install_ubuntu_fedora() {
 
 install_rhel() {
   sudo yum install -y buildah
-  install_qemu_static_rhel9
+  install_qemu_static_rhel
 }
 
-install_qemu_static_rhel9() {
+install_qemu_static_rhel() {
   wget -c https://github.com/multiarch/qemu-user-static/releases/download/v7.2.0-1/qemu-aarch64-static -P /tmp/
   chmod a+x /tmp/qemu-aarch64-static
   sudo cp /tmp/qemu-aarch64-static /usr/bin/
@@ -27,7 +27,7 @@ case "$OS" in
   ubuntu|fedora)
     install_ubuntu_fedora
     ;;
-  rhel|rhel9)
+  rhel)
     install_rhel
     ;;
   *)
