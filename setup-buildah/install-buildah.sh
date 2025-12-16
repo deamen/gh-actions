@@ -31,6 +31,10 @@ set_qemu_binfmt() {
   chmod a+x /tmp/qemu-binfmt-conf.sh
   # Patch qemu-binfmt-conf.sh so it picks up QEMU_TARGET_LIST
   patch /tmp/qemu-binfmt-conf.sh "$(dirname "$0")/qemu-binfmt-conf-aarch.patch"
+
+  # Reset the existing binfmt_misc entries for qemu
+  sudo find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*' -exec sh -c 'echo -1 > {}' \;
+
   # --credential yes is needed for rootless buildah when running arm64 containers on amd64 host
   sudo -E  /tmp/qemu-binfmt-conf.sh --qemu-suffix "-static" --qemu-path /usr/bin --credential yes --persistent yes --preserve-argv0 yes
 
